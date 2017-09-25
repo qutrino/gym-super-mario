@@ -6,7 +6,6 @@
 
 ```shell
 pip install git+https://github.com/chris-chris/gym-super-mario
-pip install git+https://github.com/openai/baselines
 ```
 
  To load and run the environments, run
