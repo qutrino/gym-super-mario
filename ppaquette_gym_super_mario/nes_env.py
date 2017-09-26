@@ -104,8 +104,8 @@ class NesEnv(gym.Env, utils.EzPickle):
             thread_incoming = Thread(target=self._listen_to_incoming_pipe, kwargs={'pipe_name': self.pipe_name})
             thread_incoming.start()
 
-        # Cannot open output pipe now, otherwise it will block until
-        # a reader tries to open the file in read mode - Must launch fceux first
+            # Cannot open output pipe now, otherwise it will block until
+            # a reader tries to open the file in read mode - Must launch fceux first
 
     def _write_to_pipe(self, message):
         # Writes to output file (to communicate action to game)
@@ -145,7 +145,7 @@ class NesEnv(gym.Env, utils.EzPickle):
 
     def _listen_to_incoming_pipe(self, pipe_name):
         # Listens to incoming messages
-        self.path_pipe_in = '%s-in.%d' % (self.path_pipe_prefix, self.pipe_name)
+        self.path_pipe_in = '%s-in.%s' % (self.path_pipe_prefix, pipe_name)
         if not os.path.exists(self.path_pipe_in):
             os.mkfifo(self.path_pipe_in)
         try:
@@ -284,7 +284,7 @@ class NesEnv(gym.Env, utils.EzPickle):
                 sleep(0.001)
                 if 0 == self.is_initialized:
                     break
-                if loop_counter >= 20000:
+                if loop_counter >= 50000:
                     # Game not properly launched, relaunching
                     restart_counter += 1
                     loop_counter = 0
@@ -320,15 +320,16 @@ class NesEnv(gym.Env, utils.EzPickle):
                 sleep(0.001)
                 if 0 == self.is_initialized:
                     break
-                if loop_counter >= 20000:
+                if loop_counter >= 50000:
                     # Game stuck, returning
                     # Likely caused by fceux incoming pipe not working
-                    logger.warn('Closing episode (appears to be stuck). See documentation for how to handle this issue.')
+                    logger.warn('Closing episode (appears to be stuck). See documentation for how to handle this issue. pid : %s' % self.subprocess.pid)
                     if self.subprocess is not None:
                         # Workaround, killing process with pid + 1 (shell = pid, shell + 1 = fceux)
                         try:
-                            os.kill(self.subprocess.pid + 1, signal.SIGKILL)
-                        except OSError:
+                            os.kill(self.subprocess.pid + 1, signal.SIGTERM)
+                        except OSError as e:
+                            logger.warn('Failed to kill prcess %s %s' % (self.subprocess.pid + 1, e))
                             pass
                         self.subprocess = None
                     return self._get_state(), 0, True, {'ignore': True}
@@ -384,7 +385,7 @@ class NesEnv(gym.Env, utils.EzPickle):
         if self.subprocess is not None:
             # Workaround, killing process with pid + 1 (shell = pid, shell + 1 = fceux)
             try:
-                os.kill(self.subprocess.pid + 1, signal.SIGKILL)
+                os.kill(self.subprocess.pid + 1, signal.SIGTERM)
             except OSError:
                 pass
             self.subprocess = None
