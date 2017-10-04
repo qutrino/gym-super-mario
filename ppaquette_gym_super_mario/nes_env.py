@@ -214,7 +214,7 @@ class NesEnv(gym.Env, utils.EzPickle):
         args.extend(self.cmd_args[:])
         args.extend(['--loadlua', temp_lua_path])
         args.append(self.rom_path)
-        args.extend(['>/dev/null', '2>/dev/null', '&'])
+        args.extend(['>log/fceux.stdout.log', '2>log/fceux.stderr.log', '&'])
         self.subprocess = subprocess.Popen(' '.join(args), shell=True)
         self.subprocess.communicate()
         if 0 == self.subprocess.returncode:
