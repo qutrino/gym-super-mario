@@ -218,6 +218,7 @@ class NesEnv(gym.Env, utils.EzPickle):
         self.subprocess = subprocess.Popen(' '.join(args), shell=True)
         self.subprocess.communicate()
         if 0 == self.subprocess.returncode:
+            logger.warn('start pid : %s command : %s' % (self.subprocess.pid, ' '.join(args), ))
             self.is_initialized = 1
             if not self.disable_out_pipe:
                 with self.lock_out:
@@ -285,6 +286,7 @@ class NesEnv(gym.Env, utils.EzPickle):
                 if 0 == self.is_initialized:
                     break
                 if loop_counter >= 50000:
+                    logger.warn('relaunching pid : %s loop_counter : %s' % (self.subprocess.pid, loop_counter, ))
                     # Game not properly launched, relaunching
                     restart_counter += 1
                     loop_counter = 0
@@ -328,7 +330,7 @@ class NesEnv(gym.Env, utils.EzPickle):
                         # Workaround, killing process with pid + 1 (shell = pid, shell + 1 = fceux)
                         try:
                             os.kill(self.subprocess.pid + 1, signal.SIGTERM)
-                        except OSError as e:
+                        except Exception as e:
                             logger.warn('Failed to kill prcess %s %s' % (self.subprocess.pid + 1, e))
                             pass
                         self.subprocess = None
@@ -385,8 +387,10 @@ class NesEnv(gym.Env, utils.EzPickle):
         if self.subprocess is not None:
             # Workaround, killing process with pid + 1 (shell = pid, shell + 1 = fceux)
             try:
+                logger.warn('kill prcess %s' % (self.subprocess.pid + 1))
                 os.kill(self.subprocess.pid + 1, signal.SIGTERM)
-            except OSError:
+            except OSError as e:
+                logger.warn('Failed to kill prcess %s %s' % (self.subprocess.pid + 1, str(e)))
                 pass
             self.subprocess = None
         sleep(0.001)
