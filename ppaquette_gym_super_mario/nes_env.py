@@ -331,7 +331,7 @@ class NesEnv(gym.Env, utils.EzPickle):
                     if self.subprocess is not None:
                         # Workaround, killing process with pid + 1 (shell = pid, shell + 1 = fceux)
                         try:
-                            cmd = "ps -ef | grep 'fceux' | grep '%s' | grep -v grep | awk '{print 'kill -9',$2}' | sh -v" % self.temp_lua_path
+                            cmd = "ps -ef | grep 'fceux' | grep '%s' | grep -v grep | awk '{print \"kill -9\",$2}' | sh -v" % self.temp_lua_path
                             logger.warn('kill prcess %s : %s' % (self.subprocess.pid + 1, cmd))
                             #os.kill(self.subprocess.pid + 1, signal.SIGTERM)
                             os.system(cmd)
@@ -392,7 +392,7 @@ class NesEnv(gym.Env, utils.EzPickle):
         if self.subprocess is not None:
             # Workaround, killing process with pid + 1 (shell = pid, shell + 1 = fceux)
             try:
-                cmd = "ps -ef | grep 'fceux' | grep '%s' | grep -v grep | awk '{print 'kill -9',$2}' | sh -v" % self.temp_lua_path
+                cmd = "ps -ef | grep 'fceux' | grep '%s' | grep -v grep | awk '{print \"kill -9\",$2}' | sh -v" % self.temp_lua_path
                 logger.warn('kill prcess %s : %s' % (self.subprocess.pid + 1, cmd))
                 #os.kill(self.subprocess.pid + 1, signal.SIGTERM)
                 os.system(cmd)
