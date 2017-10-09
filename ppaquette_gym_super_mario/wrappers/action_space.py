@@ -28,7 +28,7 @@ def ToDiscrete():
                 12: [0, 0, 0, 0, 0, 1],  # B
                 13: [0, 0, 0, 0, 1, 1],  # A + B
             }
-            self.action_space = gym.spaces.multi_discrete.DiscreteToMultiDiscrete(self.action_space, mapping)
+            self.action_space = DiscreteToMultiDiscrete(self.action_space, mapping)
         def _step(self, action):
             return self.env._step(self.action_space(action))
 
